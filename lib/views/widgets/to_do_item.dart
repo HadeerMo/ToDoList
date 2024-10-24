@@ -4,16 +4,18 @@ class ToDoItem extends StatelessWidget {
   const ToDoItem({
     super.key,
     required this.text,
-    required this.icon,
-    required this.iconColor,
+    required this.status,
+    // required this.icon,
+    // required this.iconColor,
   });
   final String text;
-  final IconData icon;
-  final Color iconColor;
+  final bool status;
+  // final IconData icon;
+  // final Color iconColor;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){},
+      onTap: () {},
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.symmetric(vertical: 8),
@@ -27,13 +29,15 @@ class ToDoItem extends StatelessWidget {
           children: [
             Text(
               text,
-              style: const TextStyle(color: Colors.white,fontSize: 16),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
             IconButton(
                 onPressed: () {},
                 icon: Icon(
-                  icon,
-                  color: iconColor,
+                  status ? Icons.check : Icons.close,
+                  color: status
+                      ? const Color.fromARGB(255, 107, 224, 53)
+                      : const Color.fromARGB(255, 235, 117, 108),
                 ))
           ],
         ),
