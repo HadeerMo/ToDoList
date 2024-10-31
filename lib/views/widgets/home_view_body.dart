@@ -1,62 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do_app/cubites/task_cubit/task_cubit.dart';
+import 'package:to_do_app/helper/crud_operations.dart';
 import 'package:to_do_app/models/task.dart';
+import 'package:to_do_app/views/widgets/custom_loading_widget.dart';
 import 'package:to_do_app/views/widgets/tasks_counter.dart';
 import 'package:to_do_app/views/widgets/to_do_item.dart';
 
-class HomePageBody extends StatefulWidget {
-  const HomePageBody({super.key, required this.allTasks});
-  final List<Task> allTasks;
+class HomePageBody extends StatelessWidget {
+  const HomePageBody({super.key});
 
-  @override
-  State<HomePageBody> createState() => _HomePageBodyState();
-}
-
-class _HomePageBodyState extends State<HomePageBody> {
   @override
   Widget build(BuildContext context) {
-    int numOfTasks = widget.allTasks.length;
-    int numOfCompletedTasks =
-        widget.allTasks.where((n) => n.status == true).toList().length;
-
-    // return
-    // ListView(
-    //   children: [
-    //     TasksCounter(
-    //         numOfCompletedTasks: numOfCompletedTasks, numOfTasks: numOfTasks),
-    //     ...allTasks.map(
-    //       (item) => ToDoItem(
-
-    //         text: item.content,
-    //         status: item.status,
-    //       ),
-    //     ),
-    //   ],
-    // );
-    return Column(
-      children: [
-        TasksCounter(
-            numOfCompletedTasks: numOfCompletedTasks, numOfTasks: numOfTasks),
-        Expanded(
-          child: ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemCount: widget.allTasks.length,
-              itemBuilder: (context, index) {
-                return ToDoItem(
-                  onPressedStatus: () {
-                    widget.allTasks[index].status =
-                        !widget.allTasks[index].status;
-                    setState(() {});
-                  },
-                  onPressedDelete: () {
-                    widget.allTasks.removeAt(index);
-                    setState(() {});
-                  },
-                  text: widget.allTasks[index].content,
-                  status: widget.allTasks[index].status,
-                );
-              }),
-        ),
-      ],
+    List<Task> allTasks =[];
+    return BlocConsumer<TaskCubit, TaskState>(
+      listener: (context, state) {
+        if (state is TaskSuccess) {
+          allTasks = state.tasks;
+        }
+      },
+      builder: (context, state) {
+        if (state is TaskFailure) {
+          return const CustomLoadingWidget();
+        } else if (state is TaskSuccess) {
+          return Column(
+            children: [
+              TasksCounter(
+                numOfCompletedTasks:
+                    allTasks.where((t) => t.status == true).toList().length,
+                numOfTasks: allTasks.length,
+              ),
+              Expanded(
+                child: ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: allTasks.length,
+                    itemBuilder: (context, index) {
+                      return ToDoItem(
+                        task: allTasks[index],
+                      );
+                    }),
+              ),
+            ],
+          );
+        } else if(state is TaskFailure) {
+          return Text(state.errorMsg);
+        }
+        else{
+            return const CustomLoadingWidget();
+        }
+      },
     );
   }
 }

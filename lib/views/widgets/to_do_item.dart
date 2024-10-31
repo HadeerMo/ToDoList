@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do_app/cubites/task_cubit/task_cubit.dart';
+import 'package:to_do_app/helper/task_style.dart';
+import 'package:to_do_app/models/task.dart';
+import 'package:to_do_app/views/widgets/custom_icon.dart';
 
 class ToDoItem extends StatelessWidget {
   const ToDoItem({
     super.key,
-    required this.text,
-    required this.status,
-    this.onPressedStatus, this.onPressedDelete,
-    // required this.icon,
-    // required this.iconColor,
+    required this.task,
   });
-  final String text;
-  final bool status;
-  final void Function()? onPressedStatus;
-  final void Function()? onPressedDelete;
-  // final IconData icon;
-  // final Color iconColor;
+  final Task task;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // onTap: onTap,
+      onTap: (){
+        BlocProvider.of<TaskCubit>(context).updateStatus(idValue: task.id, status: !task.status);
+      },
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.symmetric(vertical: 8),
@@ -31,22 +29,28 @@ class ToDoItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              text,
-              style: customTextStyle(),
+              task.content,
+              style: customTextStyle(task),
             ),
             Row(
               children: [
                 CustomIcon(
-                  onPressed: onPressedStatus,
-                  icon: status ? Icons.check : Icons.close,
-                  color: status
+                  onPressed: (){
+                    BlocProvider.of<TaskCubit>(context).updateStatus(idValue: task.id, status: !task.status);
+                  },
+                  icon: task.status ? Icons.check : Icons.close,
+                  color: task.status
                       ? const Color.fromARGB(255, 107, 224, 53)
                       : const Color.fromARGB(255, 235, 117, 108),
+                  size: 24,
                 ),
                 CustomIcon(
-                  onPressed: onPressedDelete,
+                  onPressed: () {
+                    BlocProvider.of<TaskCubit>(context).deleteTask(task.id);
+                  },
                   icon: Icons.delete,
                   color: const Color.fromARGB(255, 236, 203, 201),
+                  size: 24,
                 ),
               ],
             ),
@@ -56,28 +60,5 @@ class ToDoItem extends StatelessWidget {
     );
   }
 
-  TextStyle customTextStyle() => TextStyle(color: status? Colors.black: Colors.white, fontSize: 16,decoration: status?TextDecoration.lineThrough: TextDecoration.none );
-}
-
-class CustomIcon extends StatelessWidget {
-  const CustomIcon({
-    super.key,
-    required this.onPressed,
-    required this.color,
-    required this.icon,
-  });
-
-  final void Function()? onPressed;
-  final Color color;
-  final IconData icon;
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(
-        icon,
-        color: color,
-      ),
-    );
-  }
+  
 }

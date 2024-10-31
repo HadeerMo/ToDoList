@@ -1,39 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do_app/cubites/task_cubit/task_cubit.dart';
 import 'package:to_do_app/helper/custom_dialog.dart';
-import 'package:to_do_app/models/task.dart';
-import 'package:to_do_app/views/widgets/custom_appbar_icon.dart';
+import 'package:to_do_app/views/widgets/custom_icon.dart';
 import 'package:to_do_app/views/widgets/home_view_body.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  String value = '';
-  List<Task> allTasks = [
-    Task(content: "Go to Work", status: true),
-    Task(content: "Eat with My Family", status: false),
-    Task(content: "Watch Movie", status: false),
-  ];
-
-  final myController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     double widthOfScreen = MediaQuery.of(context).size.width;
     double hightOfScreen = MediaQuery.of(context).size.height;
+    BlocProvider.of<TaskCubit>(context).getAllTasks();
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0xff272c39),
         appBar: AppBar(
           actions: [
-            CustomAppBarIcon(
-              onPressed: () {
-                allTasks.clear();
-                setState(() {});
+            CustomIcon(
+              onPressed: () async {
+                BlocProvider.of<TaskCubit>(context).deleteAllTasks();
               },
+              icon: Icons.delete_forever,
+              color: const Color.fromARGB(255, 236, 203, 201),
+              size: 30,
             ),
           ],
           backgroundColor: const Color.fromRGBO(58, 66, 86, 1),
@@ -46,32 +36,16 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: HomePageBody(
-            allTasks: allTasks,
-          ),
+        body: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: HomePageBody(),
         ),
         floatingActionButton: FloatingActionButton(
             onPressed: () {
-              // showCustomBottomSheet(
-              //   controller: myController,
-              //   context,
-              //   hightOfScreen,
-              //   widthOfScreen,
-              //   onPressed: () {
-              //     addToList(myController.text);
-              //   },
-              // );
-
               customDialog(
                 context,
                 hightOfScreen,
                 widthOfScreen,
-                controller: myController,
-                onPressed: () {
-                  addToList(myController.text);
-                },
               );
             },
             shape: const CircleBorder(),
@@ -82,14 +56,5 @@ class _HomePageState extends State<HomePage> {
             )),
       ),
     );
-  }
-
-  void addToList(String value) {
-    allTasks.add(
-      Task(content: value, status: false),
-    );
-    setState(() {});
-    Navigator.pop(context);
-    myController.text = '';
   }
 }

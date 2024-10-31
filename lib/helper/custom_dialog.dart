@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do_app/cubites/task_cubit/task_cubit.dart';
 import 'package:to_do_app/views/widgets/custom_btn.dart';
 import 'package:to_do_app/views/widgets/custom_input.dart';
 
 Future<dynamic> customDialog(
   BuildContext context,
   double hightOfScreen,
-  double widthOfScreen, {
-  required TextEditingController? controller,
-  required void Function()? onPressed,
-}) {
+  double widthOfScreen,
+) {
+  String content = '';
   return showDialog(
       context: context,
       builder: (context) {
@@ -29,11 +30,18 @@ Future<dynamic> customDialog(
                       bottom: 20,
                     ),
                     child: CustomInput(
-                      controller: controller,
+                      onChanged: (value) {
+                        content = value;
+                        
+                      },
+                      // controller: controller,
                     ),
                   ),
                   CustomBtn(
-                    onPressed: onPressed,
+                    onPressed: (){
+                      BlocProvider.of<TaskCubit>(context).addTask(content);
+                        Navigator.pop(context);
+                    },
                     widthOfScreen: widthOfScreen * .5,
                   )
                 ],
